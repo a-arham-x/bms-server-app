@@ -1,7 +1,7 @@
 // Making all the Necessary Imports
 const express = require("express");
 const router = express.Router();
-// const mailVerification = require("../utils/emailVerfication");
+const mailVerification = require("../utils/emailVerification");
 const Customer = require("../models/Customer");
 // const Order = require("../models/Orders")
 const { body, validationResult } = require("express-validator");
@@ -10,34 +10,6 @@ const nodemailer = require("nodemailer");
 // const jwt = require("jsonwebtoken");
 const fetchAdmin = require("../middleware/fetchAdmin");
 // const { json } = require("body-parser");
-
-// transporter function for connecting with the email to send messages
-let transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: "cinema.ticketing.system117@gmail.com",
-        pass: process.env.PASS
-    }
-})
-
-// function to generate the code
-function mailVerification(req, res, receiver) {
-    const verificationCode = Math.floor(100000 + Math.random() * 900000);
-    // generating the message
-    message = {
-        from: "cinema.ticketing.system117@gmail.com",
-        to: receiver,
-        subject: "Account Verification",
-        text: `Your Verification Code is ${verificationCode}`
-    }
-
-    // sending the mail to the user
-    transporter.sendMail(message, function (err, info) {
-        // Sending error message in case of any error
-        if (err) {return 0}
-    });
-    return verificationCode;
-}
 
 let verificationCode;
 
