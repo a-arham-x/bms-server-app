@@ -23,7 +23,7 @@ app.use(cors());
 // app.use(`/products`, require("./routes/products"));
 // app.use(`/customer`, require("./routes/customers"));
 // app.use(`/orders`, require("./routes/orders"));
-// app.use(`/admin`, require("./routes/admin"));
+app.use(`/admin`, require("./routes/admin"));
 
 // Calling the connectToMongo Function to connect to our database.
 connectToMongo();
