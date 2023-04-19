@@ -56,7 +56,7 @@ router.put("/updatename", fetchAdmin, [
 })
 
 
-let newAdminMail;
+// let newAdminMail;
 
 // // rouet for getting admin mails
 router.put("/getmail", fetchAdmin, [
