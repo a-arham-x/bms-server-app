@@ -1,5 +1,5 @@
 // requiring the nodemailer package
-const nodemailer = require('nodemailer');
+// const nodemailer = require('nodemailer');
 
 // transporter function for connecting with the email to send messages
 let transporter = nodemailer.createTransport({
