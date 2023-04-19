@@ -4,7 +4,7 @@ const router = express.Router();
 // const mailVerification = require("../utils/emailVerfication.js");
 const Customer = require("../models/Customer");
 // const Order = require("../models/Orders")
-// const { body, validationResult } = require("express-validator");
+const { body, validationResult } = require("express-validator");
 // const bcrypt = require("bcrypt");
 // const jwt = require("jsonwebtoken");
 const fetchAdmin = require("../middleware/fetchAdmin");
@@ -28,32 +28,32 @@ router.get("/getadmin", fetchAdmin, async (req, res) => {
 
 
 // route for updating the name of the user
-// router.put("/updatename", fetchAdmin, [
-//     body("name", {error: "Name must be of atleast length 5"}).isLength({min: 5})
-// ], async (req, res) => {
-//     // defining a variable success that defines if the operation succeeded or not
-//     let success;
+router.put("/updatename", fetchAdmin, [
+    body("name", {error: "Name must be of atleast length 5"}).isLength({min: 5})
+], async (req, res) => {
+    // defining a variable success that defines if the operation succeeded or not
+    let success;
     
-//     // Checking for any errors in the request fields
-//     const errors = validationResult(req);
+    // Checking for any errors in the request fields
+    const errors = validationResult(req);
 
-//     if (!errors.isEmpty()){
-//         success = false;
-//         return res.send({message: "One of the required fields is not correct", success});
-//     }
+    if (!errors.isEmpty()){
+        success = false;
+        return res.send({message: "One of the required fields is not correct", success});
+    }
 
-//     // Authenticating the admin token
-//     const admin = await Customer.findOne({isAdmin: true});
+    // Authenticating the admin token
+    const admin = await Customer.findOne({isAdmin: true});
 
-//     if (admin._id != req.admin.key){
-//         return res.json({message: "Authorization Failed", success: false});
-//     }
+    if (admin._id != req.admin.key){
+        return res.json({message: "Authorization Failed", success: false});
+    }
 
-//     // returning success true if the operation is completed
-//     const update = await Customer.updateOne({_id: req.admin.key}, { $set: {name: req.body.name}});
-//     success = true;
-//     return res.json({update, message: "Your account name has been updated", success})
-// })
+    // returning success true if the operation is completed
+    const update = await Customer.updateOne({_id: req.admin.key}, { $set: {name: req.body.name}});
+    success = true;
+    return res.json({update, message: "Your account name has been updated", success})
+})
 
 
 // let newAdminMail;
