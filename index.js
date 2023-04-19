@@ -20,13 +20,13 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // Using all the routes with the aid of the following middlewares
-app.use(`/${process.env.ROUTES_CODE}/products`, require("./routes/products"));
+app.use(`/products`, require("./routes/products"));
 app.use(`/${process.env.ROUTES_CODE}/customer`, require("./routes/customers"));
 // app.use(`/orders`, require("./routes/orders"));
 app.use(`/${process.env.ROUTES_CODE}/admin`, require("./routes/admin"));
 
 // Calling the connectToMongo Function to connect to our database.
-connectToMongo();
+connectToMongo();   
 
 app.get("/", (req, res)=>{
   res.send("Hello World");
