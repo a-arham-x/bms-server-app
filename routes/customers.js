@@ -1,13 +1,13 @@
 // // Making all the Necessary Imports
 const express = require("express");
-const router = express.Router();
-const mailVerification = require("../utils/emailVerification");
-const Customer = require("../models/Customer");
-const Order = require("../models/Orders");
-const { body, validationResult } = require("express-validator");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const fetchCustomer = require("../middleware/fetchCustomer");
+// const router = express.Router();
+// const mailVerification = require("../utils/emailVerification");
+// const Customer = require("../models/Customer");
+// const Order = require("../models/Orders");
+// const { body, validationResult } = require("express-validator");
+// const bcrypt = require("bcrypt");
+// const jwt = require("jsonwebtoken");
+// const fetchCustomer = require("../middleware/fetchCustomer");
 
 // let verificationCode;
 // let newCustomer;
