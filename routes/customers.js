@@ -356,7 +356,7 @@ router.delete("/delete", fetchCustomer,
         success = false;
         return res.json({message: "Internal Server Error". success})
     });
-    success = true;s
+    success = true;
     await Customer.findByIdAndDelete(customer.id).then(()=>{
         return res.json({message: "Account Deleted", success})
     }).catch(()=>{
