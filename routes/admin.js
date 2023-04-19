@@ -134,45 +134,45 @@ router.put("/updateemail", fetchAdmin, [
 
 
 // // route for updating password
-// router.put("/updatepassword", fetchAdmin, [
-//     body("oldPassword", {error: "Enter The correct Password"}),
-//     body("newPassword", {error: "Enter The new password to update"}).isLength({min: 8, max: 16})
-// ], async (req, res) => {
+router.put("/updatepassword", fetchAdmin, [
+    body("oldPassword", {error: "Enter The correct Password"}),
+    body("newPassword", {error: "Enter The new password to update"}).isLength({min: 8, max: 16})
+], async (req, res) => {
 
-//     // a variable success to define the success or failure of the request
-//     let success;
+    // a variable success to define the success or failure of the request
+    let success;
     
-//     // Checking for any errors in the request fields
-//     const errors = validationResult(req);
+    // Checking for any errors in the request fields
+    const errors = validationResult(req);
 
-//     if (!errors.isEmpty()){
-//         success = false;
-//         return res.json({message: "One of the required Fields is not correct.", success});
-//     }
+    if (!errors.isEmpty()){
+        success = false;
+        return res.json({message: "One of the required Fields is not correct.", success});
+    }
 
-//     // Authenticating the admin token
-//     const admin = await Customer.findOne({isAdmin: true});
+    // Authenticating the admin token
+    const admin = await Customer.findOne({isAdmin: true});
 
-//     if (admin._id != req.admin.key){
-//         return res.json({message: "Authorization Failed", success: false});
-//     }
+    if (admin._id != req.admin.key){
+        return res.json({message: "Authorization Failed", success: false});
+    }
 
 
-//     // checking if the old password entered is correct or not.
-//     const oldPasswordCorrect = await bcrypt.compare(req.body.oldPassword, admin.password);
-//     if (!oldPasswordCorrect){
-//         success = false;
-//         return res.json({message: "Enter the correct old password", success});
-//     }
+    // checking if the old password entered is correct or not.
+    const oldPasswordCorrect = await bcrypt.compare(req.body.oldPassword, admin.password);
+    if (!oldPasswordCorrect){
+        success = false;
+        return res.json({message: "Enter the correct old password", success});
+    }
 
-//     // hashing the new password
-//     const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
+    // hashing the new password
+    const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
 
-//     // updating password and sending the response
-//     const update = await Customer.updateOne({_id: req.admin.key}, { $set : {password: hashedPassword}});
-//     success = true;
-//     return res.json({message: "Your password has been updated", update, success});
-// })
+    // updating password and sending the response
+    const update = await Customer.updateOne({_id: req.admin.key}, { $set : {password: hashedPassword}});
+    success = true;
+    return res.json({message: "Your password has been updated", update, success});
+})
 
 
 // router.get("/getcustomers", fetchAdmin, async (req, res) => {
