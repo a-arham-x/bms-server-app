@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const mailVerification = require("../utils/emailVerification");
 const Customer = require("../models/Customer");
-// const Order = require("../models/Orders")
+const Order = require("../models/Orders")
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
@@ -175,49 +175,49 @@ router.put("/updatepassword", fetchAdmin, [
 })
 
 
-// router.get("/getcustomers", fetchAdmin, async (req, res) => {
+router.get("/getcustomers", fetchAdmin, async (req, res) => {
 
-//     // Authenticating the admin token
-//     const admin = await Customer.findOne({isAdmin: true});
+    // Authenticating the admin token
+    const admin = await Customer.findOne({isAdmin: true});
 
-//     if (admin._id != req.admin.key){
-//         return res.json({message: "Authorization Failed", success: false});
-//     }
+    if (admin._id != req.admin.key){
+        return res.json({message: "Authorization Failed", success: false});
+    }
 
-//     // Getting all the customers from the database
-//     const customers = await Customer.find({isAdmin: false});
+    // Getting all the customers from the database
+    const customers = await Customer.find({isAdmin: false});
 
-//     // returning the response
-//     return res.json({message: "All Customers Fetched", customers, success: true});
-// })
+    // returning the response
+    return res.json({message: "All Customers Fetched", customers, success: true});
+})
 
-// router.post("/getorders", fetchAdmin, [
-//     body("id", {error: "There is no user id given"})
-// ], async (req, res) => {
+router.post("/getorders", fetchAdmin, [
+    body("id", {error: "There is no user id given"})
+], async (req, res) => {
 
-//     // Authenticating the admin token 
-//     const admin = await Customer.findOne({isAdmin: true});
+    // Authenticating the admin token 
+    const admin = await Customer.findOne({isAdmin: true});
 
-//     if (admin._id != req.admin.key){
-//         return res.json({message: "Authorization Failed", success: false});
-//     }
+    if (admin._id != req.admin.key){
+        return res.json({message: "Authorization Failed", success: false});
+    }
 
-//     // checking for any errors in the request body
-//     const errors = validationResult(req);
+    // checking for any errors in the request body
+    const errors = validationResult(req);
 
-//     if (!errors.isEmpty()){
-//         return res.json({message: "There is no user to fetch orders", success: false});
-//     }
+    if (!errors.isEmpty()){
+        return res.json({message: "There is no user to fetch orders", success: false});
+    }
 
-//     // Fetching the orders of the user
-//     const orders = await Order.find({customer: req.body.id}).catch(()=>{return res.json({message: "Internal Server Error", success: false})});
+    // Fetching the orders of the user
+    const orders = await Order.find({customer: req.body.id}).catch(()=>{return res.json({message: "Internal Server Error", success: false})});
     
-//     // reversing array to get to see the latest ones first
-//     orders.reverse();
+    // reversing array to get to see the latest ones first
+    orders.reverse();
 
-//     // returning the response
-//     return res.json({message: "Orders Fetched", orders, success: true})
-// })
+    // returning the response
+    return res.json({message: "Orders Fetched", orders, success: true})
+})
 
 
 module.exports = router;
