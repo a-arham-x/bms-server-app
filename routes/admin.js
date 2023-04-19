@@ -104,33 +104,33 @@ router.put("/getmail", fetchAdmin, [
 })
 
 // // update administrator email
-// router.put("/updateemail", fetchAdmin, [
-//     body("code", {error: "Enter Code First"})
-// ], async (req, res) => {
-//     // a variable success to define the success or failure of the request
-//     let success;
+router.put("/updateemail", fetchAdmin, [
+    body("code", {error: "Enter Code First"})
+], async (req, res) => {
+    // a variable success to define the success or failure of the request
+    let success;
     
-//     // Checking for any errors in the request fields
-//     const errors = validationResult(req);
+    // Checking for any errors in the request fields
+    const errors = validationResult(req);
 
-//     if (!errors.isEmpty()){
-//         success = false;
-//         return res.send({error: "One of the required fields is not correct", success});
-//     }
+    if (!errors.isEmpty()){
+        success = false;
+        return res.send({error: "One of the required fields is not correct", success});
+    }
 
-//     // Authenticating the admin token
-//     const admin = await Customer.findOne({isAdmin: true});
+    // Authenticating the admin token
+    const admin = await Customer.findOne({isAdmin: true});
 
-//     if (admin._id != req.admin.key){
-//         return res.json({message: "Authorization Failed", success: false});
-//     }
+    if (admin._id != req.admin.key){
+        return res.json({message: "Authorization Failed", success: false});
+    }
 
 
-//     // returning success true if the operation is completed
-//     const update = await Customer.updateOne({_id: req.admin.key}, { $set: {email: newAdminMail}});
-//     success = true;
-//     return res.json({update, message: "Your Email has been updated", success})
-// })
+    // returning success true if the operation is completed
+    const update = await Customer.updateOne({_id: req.admin.key}, { $set: {email: newAdminMail}});
+    success = true;
+    return res.json({update, message: "Your Email has been updated", success})
+})
 
 
 // // route for updating password
