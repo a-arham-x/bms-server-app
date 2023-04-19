@@ -1,9 +1,9 @@
 // Making all the Necessary Imports
 const express = require("express");
 const router = express.Router();
-const mailVerification = require("../utils/emailVerfication.js");
+// const mailVerification = require("../utils/emailVerfication.js");
 const Customer = require("../models/Customer");
-// const Order = require("../models/Orders")
+const Order = require("../models/Orders")
 // const { body, validationResult } = require("express-validator");
 // const bcrypt = require("bcrypt");
 // const jwt = require("jsonwebtoken");
