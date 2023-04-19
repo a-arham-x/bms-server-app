@@ -5,8 +5,8 @@ const router = express.Router();
 const Customer = require("../models/Customer");
 const Order = require("../models/Orders")
 const { body, validationResult } = require("express-validator");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+// const bcrypt = require("bcrypt");
+// const jwt = require("jsonwebtoken");
 // const fetchAdmin = require("../middleware/fetchAdmin");
 const { json } = require("body-parser");
 
