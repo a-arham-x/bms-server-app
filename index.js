@@ -3,7 +3,7 @@
 const express = require("express");
 const app = express();
 const port = 5000;
-const connectToMongo = require('./utils/db');
+// const connectToMongo = require('./utils/db');
 const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
 const cors = require("cors")
@@ -26,7 +26,7 @@ app.use(cors());
 // app.use(`/admin`, require("./routes/admin"));
 
 // Calling the connectToMongo Function to connect to our database.
-connectToMongo();
+// connectToMongo();
 
 app.get("/", (req, res)=>{
   res.send("Hello World");
