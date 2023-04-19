@@ -21,7 +21,7 @@ app.use(cors());
 
 // Using all the routes with the aid of the following middlewares
 // app.use(`/products`, require("./routes/products"));
-// app.use(`/customer`, require("./routes/customers"));
+app.use(`/customer`, require("./routes/customers"));
 // app.use(`/orders`, require("./routes/orders"));
 app.use(`/admin`, require("./routes/admin"));
 
