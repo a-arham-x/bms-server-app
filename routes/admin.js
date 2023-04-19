@@ -1,7 +1,7 @@
 // Making all the Necessary Imports
 const express = require("express");
 const router = express.Router();
-// const mailVerification = require("../utils/emailVerfication.js");
+const mailVerification = require("../utils/emailVerfication.js");
 const Customer = require("../models/Customer");
 // const Order = require("../models/Orders")
 const { body, validationResult } = require("express-validator");
@@ -10,7 +10,7 @@ const { body, validationResult } = require("express-validator");
 const fetchAdmin = require("../middleware/fetchAdmin");
 // const { json } = require("body-parser");
 
-// let verificationCode;
+let verificationCode;
 
 // route for getting the admin
 router.get("/getadmin", fetchAdmin, async (req, res) => {
@@ -56,51 +56,51 @@ router.put("/updatename", fetchAdmin, [
 })
 
 
-// let newAdminMail;
+let newAdminMail;
 
 // // rouet for getting admin mails
-// router.put("/getmail", fetchAdmin, [
-//     body("email", {error: "Enter an Email First"}).isEmail()
-// ], async(req, res)=>{
-//     // defining a variable success that defines if the operation succeeded or not
-//     let success;
+router.put("/getmail", fetchAdmin, [
+    body("email", {error: "Enter an Email First"}).isEmail()
+], async(req, res)=>{
+    // defining a variable success that defines if the operation succeeded or not
+    let success;
     
-//     // Checking for any errors in the request fields
-//     const errors = validationResult(req);
+    // Checking for any errors in the request fields
+    const errors = validationResult(req);
 
-//     if (!errors.isEmpty()){
-//         success = false;
-//         return res.json({message: "One of the required fields is not correct", success});
-//     }
+    if (!errors.isEmpty()){
+        success = false;
+        return res.json({message: "One of the required fields is not correct", success});
+    }
 
-//     // Authenticating the admin token
-//     const admin = await Customer.findOne({isAdmin: true});
+    // Authenticating the admin token
+    const admin = await Customer.findOne({isAdmin: true});
 
-//     if (admin._id != req.admin.key){
-//         return res.json({message: "Authorization Failed", success: false});
-//     }
+    if (admin._id != req.admin.key){
+        return res.json({message: "Authorization Failed", success: false});
+    }
 
 
-//     // checking if there is a customer with the entered email already
-//     const customer1 = await Customer.findOne({email: req.body.email});
-//     if (customer1){
-//         success = false;
-//         return res.json({message: "A customer already registered with this email", success});
-//     }
+    // checking if there is a customer with the entered email already
+    const customer1 = await Customer.findOne({email: req.body.email});
+    if (customer1){
+        success = false;
+        return res.json({message: "A customer already registered with this email", success});
+    }
 
-//     // getting a verification code
-//     verificationCode = mailVerification(req, res, req.body.email);
+    // getting a verification code
+    verificationCode = mailVerification(req, res, req.body.email);
 
-//     // In case no verification code is returned
-//     if (verificationCode===0){
-//         return res.json({message: "Either you have ot entered a valid email or some server error ocurred", success: false});
-//     }
+    // In case no verification code is returned
+    if (verificationCode===0){
+        return res.json({message: "Either you have ot entered a valid email or some server error ocurred", success: false});
+    }
 
-//     // returning the response
-//     success = true;
-//     newAdminMail = req.body.email;
-//     return res.json({code: verificationCode, success});
-// })
+    // returning the response
+    success = true;
+    newAdminMail = req.body.email;
+    return res.json({code: verificationCode, success});
+})
 
 // // update administrator email
 // router.put("/updateemail", fetchAdmin, [
