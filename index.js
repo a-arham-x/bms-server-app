@@ -19,6 +19,14 @@ app.use(bodyParser.json());
 // Using Cors
 app.use(cors());
 
+// add middleware to set the CORS headers
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+  });  
+
 // Using all the routes with the aid of the following middlewares
 app.use(`/products`, require("./routes/products"));
 app.use(`/customer`, require("./routes/customers"));
