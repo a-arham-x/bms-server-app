@@ -23,9 +23,10 @@ function mailVerification(req, res, receiver) {
 
     // sending the mail to the user
     transporter.sendMail(message, function (err, info) {
-        // Sending error message in case of any error
+        // Sending error message in case of any error    
         if (err) {return 0}
     });
+
     return verificationCode;
 }
 
