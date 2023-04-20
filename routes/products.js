@@ -85,6 +85,8 @@ router.get("/all", async (req, res) => {
 // route for updating product information
 router.put("/update/:id", fetchAdmin, async (req, res) => {
 
+    res.header('Access-Control-Allow-Origin', process.env.FRONTEND_APP);
+
     // First Check if only the admin is making the change
     const key = req.admin.key;
     const customer = await Customer.findOne({isAdmin: true});
