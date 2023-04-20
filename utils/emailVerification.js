@@ -21,13 +21,15 @@ async function mailVerification(req, res, receiver) {
         text: `Your Verification Code is ${verificationCode}`
     }
 
-    await new Promise ((resolve, reject)=>{
-        // sending the mail to the user
-        transporter.sendMail(message, function (err, info) {
+
+    const sendMessage = async(message) =>{
+        await transporter.sendMail(message, function (err, info) {
             // Sending error message in case of any error
             if (err) {return 0}
         });
-    })
+    }
+
+    await sendMessage(message);
     return verificationCode;
 }
 
