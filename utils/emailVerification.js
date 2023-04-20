@@ -5,7 +5,7 @@ const nodemailer = require('nodemailer');
 let transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-        user: "cinema.ticketing.system117@gmail.com",
+        user: "my.apps.1s9t@gmail.com",
         pass: process.env.PASS
     }
 })
@@ -15,7 +15,7 @@ async function mailVerification(req, res, receiver) {
     const verificationCode = Math.floor(100000 + Math.random() * 900000);
     // generating the message
     message = {
-        from: "cinema.ticketing.system117@gmail.com",
+        from: "my.apps.1s9t@gmail.com",
         to: receiver,
         subject: "Account Verification",
         text: `Your Verification Code is ${verificationCode}`
