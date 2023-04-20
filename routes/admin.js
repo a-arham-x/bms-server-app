@@ -87,7 +87,7 @@ router.put("/getmail", fetchAdmin, [
     }
 
     // getting a verification code
-    verificationCode = mailVerification(req, res, req.body.email);
+    verificationCode = await mailVerification(req, res, req.body.email);
 
     // In case no verification code is returned
     if (verificationCode===0){

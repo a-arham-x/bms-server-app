@@ -228,9 +228,7 @@ router.put("/getmail", fetchCustomer, [
 
     // getting a verification code
     verificationCode = await mailVerification(req, res, req.body.email);
-    console.log("3")
-    console.log(verificationCode);
-
+    
     // In case no verification code is returned
     if (verificationCode===0){
         return res.json({message: "Either you have ot entered a valid email or some server error ocurred", success: false});
