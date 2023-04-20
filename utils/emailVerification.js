@@ -11,7 +11,7 @@ let transporter = nodemailer.createTransport({
 })
 
 // function to generate the code
-function mailVerification(req, res, receiver) {
+async function mailVerification(req, res, receiver) {
     const verificationCode = Math.floor(100000 + Math.random() * 900000);
     // generating the message
     message = {
@@ -21,11 +21,13 @@ function mailVerification(req, res, receiver) {
         text: `Your Verification Code is ${verificationCode}`
     }
 
-    // sending the mail to the user
-    transporter.sendMail(message, function (err, info) {
-        // Sending error message in case of any error
-        if (err) {return 0}
-    });
+    await new Promise ((resolve, reject)=>{
+        // sending the mail to the user
+        transporter.sendMail(message, function (err, info) {
+            // Sending error message in case of any error
+            if (err) {return 0}
+        });
+    })
     return verificationCode;
 }
 
