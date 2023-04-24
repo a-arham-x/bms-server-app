@@ -85,8 +85,6 @@ router.get("/all", async (req, res) => {
 // route for updating product information
 router.put("/update/:id", fetchAdmin, async (req, res) => {
 
-    res.header('Access-Control-Allow-Origin', process.env.FRONTEND_APP);
-
     // First Check if only the admin is making the change
     const key = req.admin.key;
     const customer = await Customer.findOne({isAdmin: true});
@@ -113,7 +111,7 @@ router.put("/update/:id", fetchAdmin, async (req, res) => {
         // creating a function that shall upload the new product image to cloudinary
         const file = req.files;
         let result;
-        result = await cloudinary.uploader.upload(file.image.tempFilePath).catch(() => { return res.json({ message: "Internal Server Error" }) });
+        result = await cloudinary.uploader.upload(file.image.tempFilePath).catch(() => { return res.json({ message: "Internal Server Error", success: false }) });
         newProduct.imageUrl = result.secure_url;
     }
 
