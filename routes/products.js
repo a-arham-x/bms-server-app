@@ -111,7 +111,7 @@ router.put("/update/:id", fetchAdmin, async (req, res) => {
         // creating a function that shall upload the new product image to cloudinary
         const file = req.files;
         let result;
-        result = await cloudinary.uploader.upload(file.image.tempFilePath).catch(() => { return res.json({ message: "Internal Server Error", success: false }) });
+        result = await cloudinary.uploader.upload(file.image.tempFilePath).catch(() => { return res.json({ message: "Internal PP Server Error", success: false }) });
         newProduct.imageUrl = result.secure_url;
     }
 
