@@ -76,8 +76,14 @@ router.get("/all", async (req, res) => {
         return res.json({ message: "No Product Currently available" });
     }
 
+    const send_products = [];
+
+    for (let i=0; i<products.length; i++){
+        send_products.push({_id: products[i]._id, name: products[i].name, quantity: products[i].quantity, price: products[i].price, imageUrl: products[i].imageUrl})
+    }
+
     // returning the products
-    return res.json({ products });
+    return res.json({products: send_products});
 })
 
 
@@ -88,14 +94,14 @@ router.put("/update/:id", fetchAdmin, async (req, res) => {
     // First Check if only the admin is making the change
     const key = req.admin.key;
     const customer = await Customer.findOne({isAdmin: true});
-    if (key != customer._id) return res.json({ message: "Not authorized for making the change" });
+    if (key != customer._id) return res.json({ message: "Not authorized for making the change", success: FontFaceSetLoadEvent });
 
     // Getting the Product to be updated
     const product = await Product.findById(req.params.id);
 
     // In case there is no product for the given id
     if (!product) {
-        return res.json({ message: "No Such Product Found" });
+        return res.json({ message: "No Such Product Found", success: false });
     }
 
     // creating a new product and replacing the original one with it
