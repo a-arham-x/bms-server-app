@@ -5,6 +5,7 @@ const { body, validationResult } = require("express-validator");
 const Order = require("../models/Orders.js");
 const Customer = require("../models/Customer.js");
 const Product = require("../models/Products.js");
+const OrdersProducts = require("../models/OrdersProducts.js")
 const fetchCustomer = require("../middleware/fetchCustomer.js");
 const fetchAdmin = require("../middleware/fetchAdmin.js");
 
@@ -69,8 +70,12 @@ router.post("/make", fetchCustomer, async (req, res) => {
     }
 
     // creating a new order and saving it to our database
-    const order = new Order({date: Date.now(), products: req.body.products, customer: req.customer.id, cost});
-    order.save().then(()=>{
+    const order = new Order({date: Date.now(), customer: req.customer.id, cost});
+    order.save().then((newOrder)=>{
+        for (let i=0; i<len; i++){
+            const orderProduct = new OrdersProducts({order: newOrder._id, product: req.body.products[i].product_id, productQuantity: req.body.products[i].product_quantity});
+            orderProduct.save();
+        }
         success = true;
         res.json({message: "Your Order has been made", success})
     }).catch(()=>{
@@ -92,12 +97,39 @@ router.get("/get", fetchCustomer, async (req, res) => {
 
     // getting all the orders of the customer from the Orders collection
     const orders = await Order.find({customer: req.customer.id}).catch(()=>{return res.json({message:"Internal Server Error", success:false})});
-   
+    const ordersToSend = [];
+    const len = orders.length;
+
+    for (let i=0; i<len; i++){
+        const orderProducts = await OrdersProducts.find({order: orders[i]._id})
+        const order = {
+            _id: orders[i]._id,
+            customer: orders[i].customer,
+            date: orders[i].date,
+            cost: orders[i].cost,
+            received: orders[i].received,
+            cancelled: orders[i].cancelled,
+            products: []
+        };
+        const productsLen = orderProducts.length;
+        for (let j=0; j<productsLen; j++){
+            const product = await Product.findById(orderProducts[j].product);
+            const productName = product.name;
+            order.products.push({
+                _id : orderProducts[j]._id,
+                order: orderProducts[j].order,
+                product: orderProducts[j].product,
+                productName,
+                productQuantity: orderProducts[j].productQuantity
+            });
+        }
+        ordersToSend.push(order)
+    }
     // reversing the array so the customer sees the latest orders first
-    orders.reverse();
+    ordersToSend.reverse();
 
     // returning the response
-    return res.json({orders, success: true});
+    return res.json({orders: ordersToSend, success: true});
 })
 
 // creating the route for deleting an order
@@ -113,17 +145,12 @@ router.delete("/delete/:id", fetchCustomer, async (req, res) => {
 
     // getting the order from the database
     const order = await Order.findById(req.params.id).catch(()=>{return res.json({message:"Internal Server Error", success:false})});
-
+    const orderProducts = await OrdersProducts.find({order: order._id})
     // adding the items backed to database
-    for (let i=0; i<order.products.length; i++){
-        let product = await Product.findById(order.products[i].product_id).catch(()=>{return res.json({message:"Internal Server Error", success:false})});
-        let newQuantity = product.quantity + order.products[i].product_quantity;
-        let newOrderedQuantity = product.orderedQuantity -  order.products[i].product_quantity;
-        if (newOrderedQuantity==0){
-            await Product.updateOne({_id: order.products[i].product_id}, {$set:{quantity: newQuantity, orderedQuantity: newOrderedQuantity, isOrdered: false}})
-        }else{
-            await Product.updateOne({_id: order.products[i].product_id}, {$set:{quantity: newQuantity, orderedQuantity: newOrderedQuantity}});
-        }
+    for (let i=0; i<orderProducts.length; i++){
+        let product = await Product.findById(orderProducts[i].product).catch(()=>{return res.json({message:"Internal Server Error", success:false})});
+        let newQuantity = product.quantity + orderProducts[i].productQuantity;
+        await Product.updateOne({_id: orderProducts[i].product}, {$set:{quantity: newQuantity}})
     }
 
     // deleting the order
@@ -151,18 +178,7 @@ router.post("/received", fetchAdmin, [
     }
 
     // updating the order as received
-    const order = await Order.findByIdAndUpdate(req.body.id, {received: true});
-
-    // Updating ordered quantities of the products
-    for (let i=0; i<order.products.length; i++){
-        let product = await Product.findById(order.products[i].product_id).catch(()=>{return res.json({message:"Internal Server Error", success:false})});
-        let newOrderedQuantity = product.orderedQuantity -  order.products[i].product_quantity;
-        if (newOrderedQuantity==0){
-            await Product.updateOne({_id: order.products[i].product_id}, {$set:{orderedQuantity: newOrderedQuantity, isOrdered: false}})
-        }else{
-            await Product.updateOne({_id: order.products[i].product_id}, {$set:{orderedQuantity: newOrderedQuantity}});
-        }
-    }
+    await Order.findByIdAndUpdate(req.body.id, {received: true});
     return res.json({message: "The Order is received", success: true});
 })
 

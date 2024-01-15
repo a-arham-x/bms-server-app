@@ -2,10 +2,12 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../models/Products");
+const Orders = require("../models/Orders");
+const OrdersProducts = require("../models/OrdersProducts");
 const fetchAdmin = require("../middleware/fetchAdmin");
 const { body, validationResult } = require("express-validator");
-const cloudinary = require("../utils/cloudinary.js");
 const Customer = require("../models/Customer");
+const fs = require("fs");
 
 // post method for adding products to database
 router.post("/add", fetchAdmin,
@@ -29,21 +31,38 @@ router.post("/add", fetchAdmin,
         }
 
         // creating a function that shall upload the product image to cloudinary
-        const file = req.files;
-        let result;
-        if (file) {
-            if (file.image) {
-                result = await cloudinary.uploader.upload(file.image.tempFilePath).catch(() => { return res.json({ message: "Internal Server Error" }) });
-            } else {
-                result = { secure_url: "none" };
-            }
-        } else {
-            result = { secure_url: "none" };
-        }
+        const allowedExtensions = ["png", "jpeg", "jpg"];
 
-        // In case of no errors the product is stored and a response in delivered.
-        const product = new Product({ name: req.body.name, quantity: req.body.quantity, price: req.body.price, imageUrl: result.secure_url });
-        await product.save().then(() => { res.json({ message: 'Product Inserted', success: true }) }).catch((error) => { res.json({ message: "Internal Server Error", success: false }) });
+        const file = req.files;
+        if (file) {
+            const fileExtension = req.files.image.name.split(".").pop().toLowerCase();
+            if (!allowedExtensions.includes(fileExtension)){
+                return res.json({message: "File Type Provided is not acceptable", success: false});
+            }
+            if (file.image) {
+                const imageBuffer = fs.readFileSync(file.image.tempFilePath);
+                const image = imageBuffer;
+                fs.rm(
+                    "./tmp",
+                    {
+                      recursive: true
+                    },
+                    err => {
+                      if (err) {
+                        console.log("There was an error");
+                      }
+                    }
+                  );
+                // In case of no errors the product is stored and a response in delivered.
+            const product = new Product({ name: req.body.name, quantity: req.body.quantity, price: req.body.price, image});
+            await product.save();
+            return res.json({message: "New Producted Added", success: true})
+            } 
+        }
+        const product = new Product({ name: req.body.name, quantity: req.body.quantity, price: req.body.price});
+        await product.save();
+        return res.json({message: "New Product Added", success: true});
+        
     });
 
 
@@ -53,10 +72,18 @@ router.get("/details/:id", async (req, res) => {
 
     // Getting the product from the database
     const product = await Product.findById(req.params.id);
-
-    // Sending the product if it is found
     if (product) {
-        return res.json(product);
+        // Sending the product if it is found
+        const base64Data = product.image.toString("base64");
+        const imageUrl = `data:${product.image.contentType};base64,${base64Data}`;
+        const productToSend = {
+            _id: product._id,
+            name: product.name,
+            quantity: product.quantity,
+            price: product.price,
+            imageUrl
+        };
+        return res.json(productToSend);
     }
 
     // if the product is not found sending product not found error
@@ -76,14 +103,23 @@ router.get("/all", async (req, res) => {
         return res.json({ message: "No Product Currently available" });
     }
 
-    const send_products = [];
+    const productsToSend = [];
 
     for (let i=0; i<products.length; i++){
-        send_products.push({_id: products[i]._id, name: products[i].name, quantity: products[i].quantity, price: products[i].price, imageUrl: products[i].imageUrl})
+        const base64Data = products[i].image.toString("base64");
+        const imageUrl = `data:${products[i].image.contentType};base64,${base64Data}`;
+        const productToSend = {
+            _id: products[i]._id,
+            name: products[i].name,
+            quantity: products[i].quantity,
+            price: products[i].price,
+            imageUrl
+        };
+        productsToSend.push(productToSend)
     }
 
     // returning the products
-    return res.json({products: send_products});
+    return res.json({products: productsToSend});
 })
 
 
@@ -104,21 +140,40 @@ router.put("/update/:id", fetchAdmin, async (req, res) => {
         return res.json({ message: "No Such Product Found", success: false });
     }
 
+    let newProduct;
+    let image
+    const file = req.files;
+        if (file) {
+            if (file.image) {
+                const fileExtension = req.files.image.name.split(".").pop().toLowerCase();
+                if (!allowedExtensions.includes(fileExtension)){
+                    return res.json({message: "File Type Provided is not acceptable", success: false});
+                }
+                const imageBuffer = fs.readFileSync(file.image.tempFilePath);
+                image = imageBuffer;
+                fs.rm(
+                    "./tmp",
+                    {
+                      recursive: true
+                    },
+                    err => {
+                      if (err) {
+                        console.log("There was an error");
+                      }
+                    }
+                  );
+            } 
+        }
+
     // creating a new product and replacing the original one with it
-    const newProduct = { name: req.body.name, quantity: req.body.quantity, price: req.body.price, imageUrl: req.body.image };
+    newProduct = { name: req.body.name, quantity: req.body.quantity, price: req.body.price, image};
 
     // setting the unmentioned fields in the new product as those in the original product
     if (!newProduct.name) { newProduct.name = product.name; }
     if (!newProduct.quantity) { newProduct.quantity = product.quantity; }
     if (!newProduct.price) { newProduct.price = product.price; }
-    if (newProduct.imageUrl=="none") {
-        newProduct.imageUrl = product.imageUrl;;
-    } else {
-        // creating a function that shall upload the new product image to cloudinary
-        const file = req.files;
-        let result;
-        result = await cloudinary.uploader.upload(file.image.tempFilePath).catch(() => { return res.json({ message: "Internal PP Server Error", success: false }) });
-        newProduct.imageUrl = result.secure_url;
+    if (!newProduct.image) {
+        newProduct.image = product.image;
     }
 
     update = await Product.findByIdAndUpdate(req.params.id, { $set: newProduct }, { new: true });
@@ -144,8 +199,14 @@ router.delete("/delete/:id", fetchAdmin, async (req, res) => {
     }
 
     // Stopping the process if there are orders of the product made
-    if (product.isOrdered) {
-        return res.json({ message: "Cannot delete the product as there are orders of it made.", success: false });
+    const ordersProducts = await OrdersProducts.find({product: req.params.id})
+    if (ordersProducts.length>0){
+        for (let i=0; i<ordersProducts.length; i++){
+            const order = await Orders.findById(ordersProducts[i].order);
+            if (!order.received && !order.cancelled){
+                return res.json({ message: "Cannot delete the product as there are orders of it made.", success: false });
+            }
+        }
     }
 
     // the product is searched and deleted

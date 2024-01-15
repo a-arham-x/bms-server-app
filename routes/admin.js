@@ -4,6 +4,8 @@ const router = express.Router();
 const mailVerification = require("../utils/emailVerification");
 const Customer = require("../models/Customer");
 const Order = require("../models/Orders")
+const Product = require("../models/Products")
+const OrdersProducts = require("../models/OrdersProducts");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const fetchAdmin = require("../middleware/fetchAdmin");
@@ -206,14 +208,41 @@ router.post("/getorders", fetchAdmin, [
         return res.json({message: "There is no user to fetch orders", success: false});
     }
 
-    // Fetching the orders of the user
-    const orders = await Order.find({customer: req.body.id}).catch(()=>{return res.json({message: "Internal Server Error", success: false})});
-    
-    // reversing array to get to see the latest ones first
-    orders.reverse();
+    // getting all the orders of the customer from the Orders collection
+    const orders = await Order.find({customer: req.body.id}).catch(()=>{return res.json({message:"Internal Server Error", success:false})});
+    const ordersToSend = [];
+    const len = orders.length;
+
+    for (let i=0; i<len; i++){
+        const orderProducts = await OrdersProducts.find({order: orders[i]._id})
+        const order = {
+            _id: orders[i]._id,
+            customer: orders[i].customer,
+            date: orders[i].date,
+            cost: orders[i].cost,
+            received: orders[i].received,
+            cancelled: orders[i].cancelled,
+            products: []
+        };
+        const productsLen = orderProducts.length;
+        for (let j=0; j<productsLen; j++){
+            const product = await Product.findById(orderProducts[j].product);
+            const productName = product.name;
+            order.products.push({
+                _id : orderProducts[j]._id,
+                order: orderProducts[j].order,
+                product: orderProducts[j].product,
+                productName,
+                productQuantity: orderProducts[j].productQuantity
+            });
+        }
+        ordersToSend.push(order)
+    }
+    // reversing the array so the customer sees the latest orders first
+    ordersToSend.reverse();
 
     // returning the response
-    return res.json({message: "Orders Fetched", orders, success: true})
+    return res.json({orders: ordersToSend, success: true});
 })
 
 
