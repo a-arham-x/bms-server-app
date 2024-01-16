@@ -23,6 +23,10 @@ const customerSchema = new mongoose.Schema({
     isAdmin:{
         type: Boolean,
         default: false
+    },
+    twoStepAuth:{
+        type: Boolean,
+        default: false
     }
 });
 

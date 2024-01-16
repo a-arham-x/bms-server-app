@@ -21,23 +21,19 @@ router.post("/getmail", [
     body("password", { error: "Password Not provided" }).isLength({ min: 8, max: 16 })
 ], async (req, res) => {
 
-    // defining a variable success
-    let success;
     
     // Checking for any errors so all the required fields are provided
     const errors = validationResult(req);
 
     // The user shall be informed in case of any error
     if (!errors.isEmpty()) {
-        success = false;
-        return res.json({ message: "One of the fields is not correct" , success});
+        return res.json({ message: "One of the fields is not correct" , success: false});
     }
 
     // checking if there is a customer with the entered email already
     const customer = await Customer.findOne({email: req.body.email});
     if (customer){
-        success = false;
-        return res.json({message: "A customer already registered with this email", success});
+        return res.json({message: "A customer already registered with this email", success: false});
     }
 
     // hashing the password for better security
@@ -50,10 +46,9 @@ router.post("/getmail", [
         password: hashedPassword,
         dateOfBirth: req.body.dateOfBirth
     }
-
     // getting a verification code
     verificationCode = await mailVerification(req, res, req.body.email);
-
+    console.log("Yahan tk b easy scene hai")
     // In case no verification code is returned
     if (verificationCode===0){
         return res.json({message: "Either you have ot entered a valid email or some server error ocurred", success: false});
@@ -310,6 +305,26 @@ router.put("/updatepassword", fetchCustomer, [
     const update = await Customer.updateOne({_id: req.customer.id}, { $set : {password: hashedPassword}});
     success = true;
     return res.json({message: "Your password has been updated", update, success});
+})
+
+//route for the user to enable two step authentication
+router.post("/enabletwostepauth", fetchCustomer, async (req, res)=>{
+    // Getting the user whose two step authentication is to be enabled
+    const customer = await Customer.findById(req.customer.id);
+    
+    // In case there is no customer for the given id
+    if (!customer){
+        return res.json({message: "Autrhentication failed", success: false});
+    }
+
+    // checking if two step authentication is already enabled
+    if (customer.twoStepAuth){
+        return res.json({message: "Two Step Authentication is already enabled for your account", success: false})
+    }
+
+    await Customer.updateOne({_id: req.customer.id}, {$set: {twoStepAuth: true}});
+
+    return res.json({message: "Two Step Authentication Enabled for your account", success: true});
 })
 
 
