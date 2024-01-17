@@ -20,7 +20,6 @@ async function mailVerification(req, res, receiver) {
         subject: "Account Verification",
         text: `Your Verification Code is ${verificationCode}`
     }
-
     // sending the mail to the user
     await new Promise((resolve, reject) => {
         transporter.sendMail(message, function (err, info) {
