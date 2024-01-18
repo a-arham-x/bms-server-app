@@ -24,6 +24,7 @@ app.use(`/customer`, require("./routes/customers"));
 app.use(`/orders`, require("./routes/orders"));
 app.use(`/admin`, require("./routes/admin"));
 app.use(`/reviews`, require("./routes/reviews"));
+app.use("/reports", require("./routes/reports"));
 
 // Calling the connectToMongo Function to connect to our database.
 connectToMongo();   

@@ -52,11 +52,6 @@ router.post("/register", [
         return res.json({ message: errors.errors[0].msg.error, success: false });
     }
 
-    // The user shall be informed in case of any error
-    if (!errors.isEmpty()) {
-        return res.json({ message: "One of the fields is not correct", success: false });
-    }
-
     // check if the correct code is entered
     if (req.body.code != verificationCode) {
         return res.json({ message: "Enter the correct Code", success: false });
