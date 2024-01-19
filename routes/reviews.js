@@ -8,7 +8,6 @@ const fetchCustomer = require("../middleware/fetchCustomer.js");
 router.get("/reviews/:id", async (req, res)=>{
 
     const reviews = await ProductReviews.find({product: req.params.id});
-
     const reviewsToSend = [];
     const reviewsLength = reviews.length;
 

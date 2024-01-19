@@ -8,6 +8,9 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const fetchCustomer = require("../middleware/fetchCustomer");
+const OrdersProducts = require("../models/OrdersProducts");
+const Reports = require("../models/Reports");
+const ProductReviews = require("../models/ProductReviews");
 
 let verificationCode;
 
@@ -404,11 +407,19 @@ router.delete("/delete", fetchCustomer,
         }
 
         // first we delete all the orders made by the customer from our database and then the customer
-        await Order.deleteMany({ customer: req.customer.id }).catch(() => {
-            success = false;
-            return res.json({ message: "Internal Server Error".success })
-        });
-        success = true;
+        const orders = await Order.find({customer: req.customer.id});
+
+        const ordersLength = orders.length;
+        for (let i=0; i<ordersLength; i++){
+            await OrdersProducts.deleteMany({order: orders[i]._id})
+        }
+
+        await Order.deleteMany({customer: req.customer.id});
+
+        // deleting the reviews and reports made by the customer
+        await Reports.deleteMany({customer: req.customer.id});
+        await ProductReviews.deleteMany({customer: req.customer.id});
+
         await Customer.findByIdAndDelete(customer.id).then(() => {
             return res.json({ message: "Account Deleted", success })
         }).catch(() => {

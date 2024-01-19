@@ -211,6 +211,7 @@ router.delete("/delete/:id", fetchAdmin, async (req, res) => {
 
     // the product is searched and deleted
     await Product.findByIdAndDelete(product._id).then(() => { return res.json({ message: "Product Deleted", success: true }) }).catch(() => { return res.json({ message: "Internal Server Error", success: false }) });
+
 })
 
 
