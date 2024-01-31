@@ -19,7 +19,8 @@ router.get("/reports", fetchAdmin, async (req, res)=>{
             _id: reports[i]._id,
             customer: customer.name,
             timestamp: reports[i].timestamp,
-            text: reports[i].text
+            text: reports[i].text,
+            isSeen: reports[i].isSeen
         })
     }
 
@@ -62,6 +63,13 @@ router.delete("/delete/:id", fetchAdmin, async(req, res)=>{
     await Reports.findByIdAndDelete(req.params.id);
 
     return res.json({message: "Customer report deleted", success: true});
+})
+
+router.put("/setseen/:id", fetchAdmin, async (req, res)=>{
+
+    await Reports.findByIdAndUpdate(req.params.id, {$set: {isSeen: true}})
+
+    return res.json({message: "The report has been seen", success:  true})
 })
 
 module.exports = router;
