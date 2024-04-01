@@ -30,7 +30,7 @@ app.use("/reports", require("./routes/reports"));
 connectToMongo();   
 
 app.get("/", (req, res)=>{
-  res.send("Hello World");
+  return res.json({message: "Hello World", success: true});
 })
 
 // Starting the app
