@@ -61,7 +61,7 @@ router.post("/add", fetchAdmin,
         }
         const product = new Product({ name: req.body.name, quantity: req.body.quantity, price: req.body.price});
         await product.save();
-        return res.json({message: "New Product Added", success: true});
+        return res.json({message: "New Product Added", id: product._id,      success: true});
         
     });
 
@@ -74,14 +74,15 @@ router.get("/details/:id", async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (product) {
         // Sending the product if it is found
-        const base64Data = product.image.toString("base64");
-        const imageUrl = `data:${product.image.contentType};base64,${base64Data}`;
+        const base64Data = product.image?.toString("base64");
+        const imageUrl = `data:${product.image?.contentType};base64,${base64Data}`;
         const productToSend = {
-            _id: product._id,
+            _id: product._id,   
             name: product.name,
-            quantity: product.quantity,
+            quantity: product.quantity,  
             price: product.price,
-            imageUrl
+            imageUrl, 
+            success: true
         };
         return res.json(productToSend);
     }
@@ -100,17 +101,17 @@ router.get("/all", async (req, res) => {
 
     // Sending a message if no product is available
     if (products.length == 0) {
-        return res.json({ message: "No Product Currently available" });
+        return res.json({ message: "No Product Currently available", success: false });
     }
 
     const productsToSend = [];
 
     for (let i=0; i<products.length; i++){
-        const base64Data = products[i].image.toString("base64");
-        const imageUrl = `data:${products[i].image.contentType};base64,${base64Data}`;
+        const base64Data = products[i].image?.toString("base64");
+        const imageUrl = `data:${products[i].image?.contentType};base64,${base64Data}`;
         const productToSend = {
             _id: products[i]._id,
-            name: products[i].name,
+            name: products[i].name, 
             quantity: products[i].quantity,
             price: products[i].price,
             imageUrl
@@ -119,7 +120,7 @@ router.get("/all", async (req, res) => {
     }
 
     // returning the products
-    return res.json({products: productsToSend});
+    return res.json({products: productsToSend, success: true});
 })
 
 

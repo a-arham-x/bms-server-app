@@ -56,7 +56,7 @@ router.post("/review/:id", [
 
     review.save();
 
-    return res.json({message: "Your review has been recorded. ThankYou!", success: true});
+    return res.json({message: "Your review has been recorded. ThankYou!", id: review._id, success: true});
 })
 
 router.delete("/review/:id", fetchCustomer, async (req, res)=>{

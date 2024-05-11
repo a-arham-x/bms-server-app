@@ -55,7 +55,7 @@ router.post("/report", fetchCustomer, [
 
     report.save();
 
-    return res.json({message: "Your complain has been recorded. ThankYou!", success: true})
+    return res.json({message: "Your complain has been recorded. ThankYou!", id: report._id, success: true})
 })
 
 router.delete("/delete/:id", fetchAdmin, async(req, res)=>{

@@ -22,6 +22,8 @@ async function mailVerification(req, res, receiver) {
     }
     // sending the mail to the user
 
+    console.log(verificationCode)
+
     await new Promise((resolve, reject) => {
         transporter.sendMail(message, function (err, info) {
             // Sending error message in case of any error    

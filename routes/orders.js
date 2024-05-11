@@ -77,7 +77,7 @@ router.post("/make", fetchCustomer, async (req, res) => {
             orderProduct.save();
         }
         success = true;
-        res.json({message: "Your Order has been made", success})
+        res.json({message: "Your Order has been made", id: order._id, success})
     }).catch(()=>{
         success = false;
         res.json({message: "Internal Server Error", success})});
@@ -140,7 +140,7 @@ router.delete("/delete/:id", fetchCustomer, async (req, res) => {
 
     // returing error if the customer is not registered or removed from the database
     if (!customer){
-        return res.json({message: "Not Authorized for performing this operation", success: false}).catch(()=>{return res.json({message:"Internal Server Error", success:false})});
+        return res.json({message: "Not Authorized for performing this operation", success: false})
     }
 
     // getting the order from the database
