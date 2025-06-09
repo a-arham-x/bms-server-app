@@ -18,7 +18,12 @@ app.use(
 app.use(bodyParser.json({ limit: "10mb" }));
 
 // Using Cors
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGIN,
+    credentials: false,
+  })
+);
 
 // Using all the routes with the aid of the following middlewares
 app.use(`/products`, require("./routes/products"));
