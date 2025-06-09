@@ -17,6 +17,8 @@ app.use(
 // BodyParser for parsing the request bodies
 app.use(bodyParser.json({ limit: "10mb" }));
 
+console.log("▶️ ALLOWED_ORIGIN:", process.env.ALLOWED_ORIGIN);
+
 // Using Cors
 app.use(
   cors({
