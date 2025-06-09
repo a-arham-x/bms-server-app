@@ -115,6 +115,21 @@ router.get("/details/:id", async (req, res) => {
   });
 });
 
+router.get("/image/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id).select(
+      "image contentType"
+    );
+    if (!product || !product.image)
+      return res.status(404).send("Image not found");
+
+    res.set("Content-Type", product.contentType);
+    res.send(product.image);
+  } catch (err) {
+    res.status(500).send("Server error");
+  }
+});
+
 // route to get all products
 router.get("/all", async (req, res) => {
   const page = parseInt(req.query.page) || 1; // Default page = 1
@@ -123,7 +138,9 @@ router.get("/all", async (req, res) => {
 
   const totalProducts = await Product.countDocuments(); // Total for frontend
 
-  const products = await Product.find().skip(skip).limit(limit);
+  const products = await Product.find({}, "name quantity price")
+    .skip(skip)
+    .limit(limit);
 
   if (products.length === 0) {
     return res.json({
@@ -135,14 +152,14 @@ router.get("/all", async (req, res) => {
   }
 
   const productsToSend = products.map((product) => {
-    const base64Data = product.image?.toString("base64");
-    const imageUrl = `data:${product.image?.contentType};base64,${base64Data}`;
+    // const base64Data = product.image?.toString("base64");
+    // const imageUrl = `data:${product.image?.contentType};base64,${base64Data}`;
     return {
       _id: product._id,
       name: product.name,
       quantity: product.quantity,
       price: product.price,
-      imageUrl,
+      // imageUrl,
     };
   });
 

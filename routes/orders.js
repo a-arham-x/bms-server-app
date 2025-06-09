@@ -146,7 +146,7 @@ router.get("/get", fetchCustomer, async (req, res) => {
 
       const products = [];
       for (let op of orderProducts) {
-        const product = await Product.findById(op.product);
+        const product = await Product.findById(op.product, "name price");
         products.push({
           _id: op._id,
           order: op.order,

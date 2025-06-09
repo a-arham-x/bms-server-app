@@ -12,7 +12,7 @@ router.get("/reviews/:id", async (req, res) => {
     const limit = 5;
     const skip = (page - 1) * limit;
 
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id, "name");
     if (!product) {
       return res
         .status(404)
@@ -30,8 +30,8 @@ router.get("/reviews/:id", async (req, res) => {
 
     const reviewsToSend = [];
 
-    const base64Data = product.image?.toString("base64");
-    const imageUrl = `data:${product.image?.contentType};base64,${base64Data}`;
+    // const base64Data = product.image?.toString("base64");
+    // const imageUrl = `data:${product.image?.contentType};base64,${base64Data}`;
 
     for (let review of reviews) {
       const customer = await Customer.findById(review.customer);
@@ -43,7 +43,7 @@ router.get("/reviews/:id", async (req, res) => {
         customerId: customer._id,
         comment: review.comment,
         timestamp: review.timestamp,
-        imageUrl,
+        // imageUrl,
         productName: product.name,
         productId: product._id,
       });
@@ -135,11 +135,11 @@ router.get("/myreviews", fetchCustomer, async (req, res) => {
     const reviewsToSend = [];
 
     for (let review of reviews) {
-      const product = await Product.findById(review.product);
+      const product = await Product.findById(review.product, "name");
       if (!product) continue;
 
-      const base64Data = product.image?.toString("base64");
-      const imageUrl = `data:${product.image?.contentType};base64,${base64Data}`;
+      // const base64Data = product.image?.toString("base64");
+      // const imageUrl = `data:${product.image?.contentType};base64,${base64Data}`;
 
       reviewsToSend.push({
         _id: review._id,
@@ -147,7 +147,7 @@ router.get("/myreviews", fetchCustomer, async (req, res) => {
         customerId: customer._id,
         comment: review.comment,
         timestamp: review.timestamp,
-        imageUrl,
+        // imageUrl,
         productName: product.name,
         productId: product._id,
       });
