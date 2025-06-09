@@ -2,18 +2,20 @@
 const express = require("express");
 const app = express();
 const port = 5000;
-const connectToMongo = require('./utils/db');
+const connectToMongo = require("./utils/db");
 const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
-const cors = require("cors")
+const cors = require("cors");
 
 // making the app able to use and upload temp files
-app.use(fileUpload({
-    useTempFiles: true
-}));
+app.use(
+  fileUpload({
+    useTempFiles: true,
+  })
+);
 
 // BodyParser for parsing the request bodies
-app.use(bodyParser.json({limit: "10mb"}));
+app.use(bodyParser.json({ limit: "10mb" }));
 
 // Using Cors
 app.use(cors());
@@ -27,13 +29,13 @@ app.use(`/reviews`, require("./routes/reviews"));
 app.use("/reports", require("./routes/reports"));
 
 // Calling the connectToMongo Function to connect to our database.
-connectToMongo();   
+connectToMongo();
 
-app.get("/", (req, res)=>{
-  return res.json({message: "Hello World", success: true});
-})
+app.get("/", (req, res) => {
+  return res.json({ message: "Hello World", success: true });
+});
 
 // Starting the app
-app.listen(port, ()=>{
+app.listen(port, () => {
   console.log("The App has started");
 });

@@ -40,7 +40,6 @@ router.post(
       });
     }
 
-    // creating a function that shall upload the product image to cloudinary
     const allowedExtensions = ["png", "jpeg", "jpg", "jfif"];
 
     const file = req.files;
@@ -118,34 +117,40 @@ router.get("/details/:id", async (req, res) => {
 
 // route to get all products
 router.get("/all", async (req, res) => {
-  // getting all the products from the database
-  const products = await Product.find();
+  const page = parseInt(req.query.page) || 1; // Default page = 1
+  const limit = 12;
+  const skip = (page - 1) * limit;
 
-  // Sending a message if no product is available
-  if (products.length == 0) {
+  const totalProducts = await Product.countDocuments(); // Total for frontend
+
+  const products = await Product.find().skip(skip).limit(limit);
+
+  if (products.length === 0) {
     return res.json({
       message: "No Product Currently available",
       success: false,
+      totalProducts: 0,
+      products: [],
     });
   }
 
-  const productsToSend = [];
-
-  for (let i = 0; i < products.length; i++) {
-    const base64Data = products[i].image?.toString("base64");
-    const imageUrl = `data:${products[i].image?.contentType};base64,${base64Data}`;
-    const productToSend = {
-      _id: products[i]._id,
-      name: products[i].name,
-      quantity: products[i].quantity,
-      price: products[i].price,
+  const productsToSend = products.map((product) => {
+    const base64Data = product.image?.toString("base64");
+    const imageUrl = `data:${product.image?.contentType};base64,${base64Data}`;
+    return {
+      _id: product._id,
+      name: product.name,
+      quantity: product.quantity,
+      price: product.price,
       imageUrl,
     };
-    productsToSend.push(productToSend);
-  }
+  });
 
-  // returning the products
-  return res.json({ products: productsToSend, success: true });
+  res.json({
+    success: true,
+    products: productsToSend,
+    totalProducts,
+  });
 });
 
 // route for updating product information

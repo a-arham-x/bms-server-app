@@ -115,56 +115,72 @@ router.post("/make", fetchCustomer, async (req, res) => {
     });
 });
 
-// route for a user to view all the orders
 router.get("/get", fetchCustomer, async (req, res) => {
-  // getting the customer from the database
-  const customer = await Customer.findById(req.customer.id);
+  try {
+    const customer = await Customer.findById(req.customer.id);
 
-  // returing error if the customer is not registered or removed from the database
-  if (!customer) {
+    if (!customer) {
+      return res.status(403).json({
+        message: "Not Authorized for making the request",
+        success: false,
+      });
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    const totalOrders = await Order.countDocuments({
+      customer: req.customer.id,
+    });
+
+    const orders = await Order.find({ customer: req.customer.id })
+      .sort({ date: -1 }) // newest orders first
+      .skip(skip)
+      .limit(limit);
+
+    const ordersToSend = [];
+
+    for (let order of orders) {
+      const orderProducts = await OrdersProducts.find({ order: order._id });
+
+      const products = [];
+      for (let op of orderProducts) {
+        const product = await Product.findById(op.product);
+        products.push({
+          _id: op._id,
+          order: op.order,
+          product: op.product,
+          productName: product?.name || "Unknown Product",
+          productQuantity: op.productQuantity,
+        });
+      }
+
+      ordersToSend.push({
+        _id: order._id,
+        customer: order.customer,
+        date: order.date,
+        cost: order.cost,
+        received: order.received,
+        cancelled: order.cancelled,
+        products,
+      });
+    }
+
     return res.json({
-      message: "Not Authorized for making the request",
+      success: true,
+      orders: ordersToSend,
+      totalOrders,
+      currentPage: page,
+      totalPages: Math.ceil(totalOrders / limit),
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Internal Server Error",
       success: false,
     });
   }
-
-  // getting all the orders of the customer from the Orders collection
-  const orders = await Order.find({ customer: req.customer.id }).catch(() => {
-    return res.json({ message: "Internal Server Error", success: false });
-  });
-  const ordersToSend = [];
-  const len = orders.length;
-
-  for (let i = 0; i < len; i++) {
-    const orderProducts = await OrdersProducts.find({ order: orders[i]._id });
-    const order = {
-      _id: orders[i]._id,
-      customer: orders[i].customer,
-      date: orders[i].date,
-      cost: orders[i].cost,
-      received: orders[i].received,
-      cancelled: orders[i].cancelled,
-      products: [],
-    };
-    const productsLen = orderProducts.length;
-    for (let j = 0; j < productsLen; j++) {
-      const product = await Product.findById(orderProducts[j].product);
-      const productName = product.name;
-      order.products.push({
-        _id: orderProducts[j]._id,
-        order: orderProducts[j].order,
-        product: orderProducts[j].product,
-        productName,
-        productQuantity: orderProducts[j].productQuantity,
-      });
-    }
-    ordersToSend.push(order);
-  }
-  // reversing the array so the customer sees the latest orders first
-  ordersToSend.reverse();
-
-  // returning the response
-  return res.json({ orders: ordersToSend, success: true });
 });
 
 // creating the route for deleting an order
