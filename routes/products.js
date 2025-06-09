@@ -117,13 +117,13 @@ router.get("/details/:id", async (req, res) => {
 
 // route to get all products
 router.get("/all", async (req, res) => {
-  // const page = parseInt(req.query.page) || 1; // Default page = 1
-  // const limit = 12;
-  // const skip = (page - 1) * limit;
+  const page = parseInt(req.query.page) || 1; // Default page = 1
+  const limit = 12;
+  const skip = (page - 1) * limit;
 
-  // const totalProducts = await Product.countDocuments(); // Total for frontend
+  const totalProducts = await Product.countDocuments(); // Total for frontend
 
-  const products = await Product.find();
+  const products = await Product.find().skip(skip).limit(limit);
 
   if (products.length === 0) {
     return res.json({
@@ -149,7 +149,7 @@ router.get("/all", async (req, res) => {
   res.json({
     success: true,
     products: productsToSend,
-    totalProducts: productsToSend.length,
+    totalProducts,
   });
 });
 
